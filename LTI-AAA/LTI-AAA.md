@@ -1135,3 +1135,196 @@ Relaciones de dependencia:
 - `Candidate Controller` no tiene lógica de negocio: solo HTTP → delegación
 - `Repository Layer` es la única pieza que toca la base de datos directamente, lo que permite tests unitarios sin necesidad de base de datos real
 - `CV Parser` y `Scoring Engine` se invocan de forma asíncrona para no bloquear la respuesta HTTP al candidato
+
+---
+
+## Prompts
+
+> **Nota:** La planificación y estructuración de estos prompts fue trabajada previamente con Claude como asistente de discovery y diseño de sistema. Claude participó en la definición del alcance, la secuencia de preguntas y el enfoque de cada fase del ejercicio.
+
+---
+
+### Discovery y propuesta de valor
+
+**Prompt 1 — Discovery del mercado ATS:**
+```
+Actúa como experto en HR Tech con experiencia en productos ATS
+(Applicant Tracking Systems).
+Necesito hacer el discovery de LTI, una startup que quiere construir
+el ATS del futuro. Respóndeme:
+1. ¿Qué problema core resuelve un ATS y para quién exactamente?
+   (recruiters, hiring managers, candidatos)
+2. ¿Qué players dominan el mercado hoy? (Greenhouse, Lever, Workday,
+   BambooHR...) ¿Cuáles son sus principales debilidades?
+3. ¿Qué pain points tienen los recruiters con los ATS actuales?
+4. ¿Qué pain points tienen los CANDIDATOS con los procesos actuales?
+5. ¿Dónde está entrando la IA en los ATS modernos y qué está
+   funcionando vs. qué es hype?
+6. ¿Qué funcionalidades serían el MVP razonable de un ATS moderno?
+7. ¿Qué integraciones externas son críticas? (LinkedIn, job boards,
+   calendarios, videollamadas...)
+Sé específico. Quiero datos y ejemplos reales, no generalidades.
+```
+
+**Prompt 2 — Propuesta de valor y Lean Canvas:**
+```
+Basándote en el análisis del mercado ATS, ayúdame a definir la
+propuesta de valor de LTI, startup que quiere crear el ATS del futuro.
+El ciclo que cubre es:
+1. Crear ofertas de trabajo
+2. Publicarlas en múltiples canales
+3. Recibir y centralizar candidaturas
+4. Revisar y filtrar aplicaciones
+5. Realizar tests online
+6. Agendar entrevistas
+7. Contratar candidatos seleccionados
+Dime:
+- ¿Cuál debería ser el diferencial competitivo de LTI frente a
+  Greenhouse o Lever?
+- ¿Qué 3 funcionalidades "wow" justificarían que una empresa
+  se cambie al ATS de LTI?
+- ¿Cuál sería el segmento de cliente ideal para empezar (ICP)?
+- ¿Qué métricas de éxito tiene sentido medir?
+Quiero construir el Lean Canvas con esta información.
+```
+
+---
+
+### Descripción del producto y documentación
+
+**Prompt 3 — Descripción de LTI:**
+```
+Redacta la descripción de LTI, un ATS (Applicant Tracking System)
+de nueva generación. El texto debe incluir:
+1. Qué es LTI (2-3 frases, sin buzzwords vacíos)
+2. Qué valor añadido aporta
+3. Sus ventajas competitivas frente a soluciones existentes
+4. Sus 4-5 funciones principales
+Tono: profesional pero directo. Máximo 300 palabras.
+```
+
+**Prompt 4 — Documentar en Markdown:**
+```
+Documenta esta salida en un documento markdown (.md)
+```
+
+**Prompt 5 — Lean Canvas en Mermaid:**
+```
+Genera un Lean Canvas para LTI (ATS del futuro) en formato Mermaid.
+El Lean Canvas debe cubrir los 9 bloques:
+- Problema (top 3 problemas)
+- Segmento de clientes
+- Propuesta de valor única
+- Solución
+- Canales
+- Flujos de ingresos
+- Estructura de costes
+- Métricas clave
+- Ventaja especial (unfair advantage)
+Usa este formato Mermaid:
+quadrantChart o bien un flowchart TD con nodos claramente
+etiquetados por bloque. Prioriza legibilidad.
+Si Mermaid no soporta bien el canvas, usa un flowchart con
+subgraphs, uno por cada bloque del canvas.
+Muéstramelo antes de añadirlo al .MD
+```
+
+---
+
+### Casos de uso
+
+**Prompt 6 — Casos de uso principales:**
+```
+Para el ATS LTI, identifica los 3 casos de uso PRINCIPALES
+que todo el sistema debe soportar en su v1.
+Para cada caso de uso, describe:
+- Nombre del caso de uso
+- Actor(es) principal(es)
+- Precondiciones
+- Flujo principal (paso a paso)
+- Flujos alternativos o de error relevantes
+- Postcondición
+Los actores del sistema son: Recruiter, Hiring Manager,
+Candidato, Sistema Externo (job boards, calendario, etc.)
+Elige los 3 casos de uso que más valor aportan y más
+complejidad de interacción tienen.
+```
+
+**Prompt 7 — Diagramas UML en Mermaid:**
+```
+Hazme en Mermaid un UML diagram de cada caso de uso y añádelo
+```
+
+---
+
+### Modelo de datos
+
+**Prompt 8 — Modelo de datos v1:**
+```
+Diseña el modelo de datos para la v1 del ATS LTI.
+El sistema cubre este ciclo completo:
+crear oferta → publicar en canales → recibir candidaturas →
+revisar → tests online → entrevistas → contratación
+Define:
+1. Todas las entidades necesarias (mínimo 8)
+2. Para cada entidad: nombre, atributos con nombre y tipo de dato
+3. Relaciones entre entidades (tipo: 1:1, 1:N, N:M)
+Después genera el diagrama ER en Mermaid (erDiagram) con:
+- Todas las entidades y sus atributos tipados
+- Todas las relaciones con cardinalidad
+- Nomenclatura en inglés, snake_case
+Sé exhaustivo pero no sobrediseñes: es una v1.
+```
+
+---
+
+### Arquitectura
+
+**Prompt 9 — Arquitectura de alto nivel:**
+```
+Diseña la arquitectura de alto nivel de LTI (ATS del futuro).
+Contexto:
+- SaaS multi-tenant
+- Integraciones con: LinkedIn, job boards externos,
+  Google Calendar / Outlook, Zoom/Meet, sistemas de email
+- Usuarios: Recruiters, Hiring Managers, Candidatos
+- Necesita IA para: scoring de CVs, recomendación de candidatos,
+  generación de job descriptions
+Describe:
+1. Qué estilo arquitectónico propones y por qué
+   (monolito modular, microservicios, etc.)
+2. Qué componentes principales tiene el sistema
+3. Cómo se comunican entre sí
+4. Qué servicios externos integra y cómo
+5. Consideraciones de escalabilidad y seguridad relevantes para v1
+Luego genera un diagrama de arquitectura en Mermaid (flowchart TD
+o graph LR) con todos los componentes y sus conexiones.
+Agrupa por capas: Frontend / API Gateway / Services / Data / External.
+```
+
+---
+
+### Diagramas C4
+
+**Prompt 10 — Diagrama C4:**
+```
+Genera un diagrama C4 para el ATS LTI, profundizando en el
+componente de "Candidate Management" (gestión del ciclo de vida
+del candidato).
+Nivel 1 - Context:
+Muestra LTI ATS en el contexto de sus usuarios y sistemas externos.
+Nivel 2 - Container:
+Desglosa LTI en sus contenedores principales
+(Web App, API, BD, servicios de IA, etc.)
+Nivel 3 - Component:
+Profundiza en el contenedor "Backend API" mostrando sus
+componentes internos relacionados con Candidate Management:
+- Candidate Controller
+- Application Service
+- CV Parser (IA)
+- Scoring Engine
+- Notification Service
+- Repository layer
+Usa la sintaxis Mermaid C4 (C4Context, C4Container, C4Component).
+Un diagrama separado por nivel.
+```
